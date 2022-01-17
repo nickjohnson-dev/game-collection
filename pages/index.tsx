@@ -1,10 +1,15 @@
-import { Box, VStack } from '@chakra-ui/react';
+import { Box, HStack, Image, Text, VStack } from '@chakra-ui/react';
 import igdb from 'igdb-api-node';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { FC } from 'react';
 
+export interface Cover {
+  url: string;
+}
+
 export interface Game {
+  cover?: Cover;
   id: number;
   name: string;
 }
@@ -15,7 +20,10 @@ export interface HomeProps {
 
 const GamesItem: FC<{ game: Game }> = ({ game }) => (
   <Box as="li" sx={{ listStyleType: 'none' }}>
-    {game.name}
+    <HStack spacing={6}>
+      <Image alt={game.name} src={game.cover?.url}></Image>
+      <Text>{game.name}</Text>
+    </HStack>
   </Box>
 );
 
@@ -43,6 +51,7 @@ const Home: NextPage<HomeProps> = (props) => {
 export async function getServerSideProps() {
   const res = await igdb(process.env.TWITCH_CLIENT_ID, process.env.IGDB_TOKEN)
     .fields('cover.*,id,name')
+    .search('Ys')
     .limit(50)
     .request('/games');
 
