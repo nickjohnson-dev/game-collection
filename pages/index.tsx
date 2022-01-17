@@ -4,15 +4,7 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import { FC } from 'react';
 
-export interface Cover {
-  url: string;
-}
-
-export interface Game {
-  cover?: Cover;
-  id: number;
-  name: string;
-}
+import { Game, getGames } from '../src';
 
 export interface HomeProps {
   games: Game[];
@@ -49,17 +41,11 @@ const Home: NextPage<HomeProps> = (props) => {
 };
 
 export async function getServerSideProps() {
-  const res = await igdb(process.env.TWITCH_CLIENT_ID, process.env.IGDB_TOKEN)
-    .fields('cover.*,id,name')
-    .search('Ys')
-    .limit(50)
-    .request('/games');
-
-  console.log({ data: res.data });
+  const games = await getGames();
 
   return {
     props: {
-      games: res.data,
+      games,
     },
   };
 }
