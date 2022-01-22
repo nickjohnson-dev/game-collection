@@ -1,16 +1,35 @@
-import { Box, HStack, Image, Text, VStack } from '@chakra-ui/react';
-import { FC, useMemo } from 'react';
+import { AddIcon, CheckIcon } from '@chakra-ui/icons';
+import {
+  Badge,
+  BadgeProps,
+  Box,
+  HStack,
+  IconButton,
+  Image,
+  Text,
+  Tooltip,
+  VStack,
+  Wrap,
+  WrapItem,
+} from '@chakra-ui/react';
+import { FC, forwardRef, useCallback, useMemo, useState } from 'react';
 
 import { noCoverUrl } from '../../igdb';
 import { Game } from '../../models';
 
 export interface GameListItemProps {
   game: Game;
+  isInCollection?: boolean;
 }
 
-export const GameListItem: FC<GameListItemProps> = (props) => {
-  const { game } = props;
+const PlatformBadge = forwardRef<HTMLSpanElement, BadgeProps>((props, ref) => (
+  <Badge cursor="default" {...props} ref={ref} />
+));
 
+export const GameListItem: FC<GameListItemProps> = (props) => {
+  const { game, isInCollection } = props;
+  const { platforms = [] } = game;
+  const [isLoading, setIsLoading] = useState(false);
   const coverUrl = useMemo(
     () =>
       game.cover
@@ -19,10 +38,24 @@ export const GameListItem: FC<GameListItemProps> = (props) => {
     [game],
   );
 
+  const handleAddClick = useCallback(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  }, []);
+
   return (
-    <Box as="li" sx={{ display: 'flex', listStyleType: 'none', width: '100%' }}>
+    <Box
+      as="li"
+      bg="white"
+      borderRadius="md"
+      p={2}
+      pr={6}
+      sx={{ display: 'flex', listStyleType: 'none', width: '100%' }}
+    >
       <HStack spacing={4} sx={{ flex: '1 1 auto' }}>
-        <div style={{ height: 80, width: 60 }}>
+        <div style={{ flex: '0 0 auto', height: 80, width: 60 }}>
           <Image
             alt={game.name}
             src={coverUrl}
@@ -33,9 +66,36 @@ export const GameListItem: FC<GameListItemProps> = (props) => {
             }}
           />
         </div>
-        <VStack space={2}>
+        <VStack align="start" flex="1 1 auto" space={2}>
           <Text>{game.name}</Text>
+          <Wrap spacing={2}>
+            {platforms.slice(0, 4).map((platform) => (
+              <WrapItem key={platform.id}>
+                <PlatformBadge>
+                  {platform.abbreviation || platform.name}
+                </PlatformBadge>
+              </WrapItem>
+            ))}
+            {platforms.length > 4 && (
+              <WrapItem key="MORE_PLATFORMS">
+                <Tooltip
+                  label={platforms
+                    .slice(4)
+                    .map((platform) => platform.abbreviation || platform.name)
+                    .join(', ')}
+                >
+                  <PlatformBadge>+ {platforms.length - 4} More</PlatformBadge>
+                </Tooltip>
+              </WrapItem>
+            )}
+          </Wrap>
         </VStack>
+        <IconButton
+          aria-label="Add"
+          icon={isInCollection ? <CheckIcon /> : <AddIcon />}
+          isLoading={isLoading}
+          onClick={handleAddClick}
+        />
       </HStack>
     </Box>
   );

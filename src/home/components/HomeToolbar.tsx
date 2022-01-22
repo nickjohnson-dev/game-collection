@@ -23,11 +23,13 @@ export const HomeToolbar: FC<HomeToolbarProps> = (props) => {
   return (
     <Box bg="white" p={6}>
       <Container>
-        <Input
-          defaultValue={searchQuery}
-          onChange={handleSearchQueryChange}
-          placeholder="Search for a game"
-        />
+        <Box>
+          <Input
+            defaultValue={searchQuery}
+            onChange={handleSearchQueryChange}
+            placeholder="Search for a game"
+          />
+        </Box>
       </Container>
     </Box>
   );
