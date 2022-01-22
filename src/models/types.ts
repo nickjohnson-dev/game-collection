@@ -1,4 +1,5 @@
 export interface Cover {
+  image_id: string;
   url: string;
 }
 

@@ -1,8 +1,42 @@
 {
-  "extends": "next/core-web-vitals",
-  "plugins": ["simple-import-sort"],
+  "extends": [
+    "react-app",
+    "plugin:jest/recommended",
+    "plugin:jest/style",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:testing-library/react",
+    "plugin:@typescript-eslint/recommended",
+    "next/core-web-vitals"
+  ],
+  "plugins": [
+    "jest",
+    "prettier",
+    "react",
+    "react-hooks",
+    "simple-import-sort",
+    "testing-library"
+  ],
+  "overrides": [
+    {
+      "extends": [],
+      "files": ["**/test/**/*.[jt]s?(x)"]
+    }
+  ],
+  "ignorePatterns": "**/*.json",
   "rules": {
+    "import/order": "off",
+    "react/prop-types": "off",
     "simple-import-sort/exports": "error",
-    "simple-import-sort/imports": "error"
+    "simple-import-sort/imports": "error",
+    "sort-imports": "off",
+    "@typescript-eslint/array-type": [
+      "error",
+      {
+        "default": "array"
+      }
+    ],
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }
