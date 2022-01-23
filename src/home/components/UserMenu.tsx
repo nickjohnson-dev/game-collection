@@ -1,30 +1,19 @@
-import { useAuth0 } from '@auth0/auth0-react';
+import { useUser } from '@auth0/nextjs-auth0';
 import {
   Avatar,
-  Icon,
-  IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   useTheme,
 } from '@chakra-ui/react';
-import { FC, useCallback, useEffect } from 'react';
-import { RiUserFill } from 'react-icons/ri';
+import { FC } from 'react';
 
 export type UserMenuProps = {};
 
 export const UserMenu: FC<UserMenuProps> = () => {
-  const { isAuthenticated, loginWithRedirect, logout, user } = useAuth0();
+  const { user } = useUser();
   const theme = useTheme();
-
-  const handleLogin = useCallback(() => {
-    loginWithRedirect();
-  }, []);
-
-  const handleLogout = useCallback(() => {
-    logout({ returnTo: window.location.origin });
-  }, []);
 
   return (
     <div>
@@ -35,16 +24,20 @@ export const UserMenu: FC<UserMenuProps> = () => {
           as={Avatar}
           h="40px"
           w="40px"
-          name={user?.name}
+          name={user?.name || undefined}
           src={user?.picture}
           sx={{ border: '1px solid transparent' }}
         />
         <MenuList>
-          {!isAuthenticated && (
-            <MenuItem onClick={handleLogin}>Log in</MenuItem>
+          {!user && (
+            <MenuItem as="a" href="/api/auth/login">
+              Log in
+            </MenuItem>
           )}
-          {isAuthenticated && (
-            <MenuItem onClick={handleLogout}>Log out</MenuItem>
+          {!!user && (
+            <MenuItem as="a" href="/api/auth/logout">
+              Log out
+            </MenuItem>
           )}
         </MenuList>
       </Menu>
