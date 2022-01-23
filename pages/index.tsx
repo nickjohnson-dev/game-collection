@@ -18,7 +18,7 @@ const Home: NextPage<HomeProps> = (props) => {
   const router = useRouter();
 
   const getIsInCollection = useCallback((game: Game) => {
-    return game.name === 'Ys: Memories of Celceta';
+    return false;
   }, []);
 
   const handleSearchQueryChange = useCallback(
@@ -39,10 +39,10 @@ const Home: NextPage<HomeProps> = (props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <HomeToolbar
-        searchQuery={searchQuery}
         onSearchQueryChange={handleSearchQueryChange}
+        searchQuery={searchQuery}
       />
-      <Box minH="100%" p={6}>
+      <Box minH="100%" p={4}>
         <Container>
           <GameList games={games} getIsInCollection={getIsInCollection} />
         </Container>

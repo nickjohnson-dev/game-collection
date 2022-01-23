@@ -1,11 +1,18 @@
+import { Auth0Provider } from '@auth0/auth0-react';
 import { ChakraProvider } from '@chakra-ui/react';
 import type { AppProps } from 'next/app';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ChakraProvider>
-      <Component {...pageProps} />
-    </ChakraProvider>
+    <Auth0Provider
+      clientId={process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID || ''}
+      domain={process.env.NEXT_PUBLIC_AUTH0_DOMAIN || ''}
+      redirectUri={process.env.NEXT_PUBLIC_VERCEL_URL || ''}
+    >
+      <ChakraProvider>
+        <Component {...pageProps} />
+      </ChakraProvider>
+    </Auth0Provider>
   );
 }
 

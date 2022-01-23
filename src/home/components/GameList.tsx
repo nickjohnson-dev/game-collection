@@ -13,7 +13,7 @@ export interface GameListProps {
 
 export const GameList: FC<GameListProps> = ({ games, getIsInCollection }) => {
   return (
-    <VStack align="flex-start" as="ul" spacing={6}>
+    <VStack align="flex-start" as="ul" spacing={4}>
       {games.map((game) => (
         <GameListItem
           game={game}

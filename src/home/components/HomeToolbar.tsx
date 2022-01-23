@@ -1,6 +1,7 @@
-import { Box, Container, Input } from '@chakra-ui/react';
+import { Box, Container, HStack, Input } from '@chakra-ui/react';
 import { debounce } from 'lodash';
 import { FC, useMemo } from 'react';
+import { UserMenu } from './UserMenu';
 
 type HomeToolbarOnSearchQueryChange = (searchQuery: string) => void;
 
@@ -21,15 +22,16 @@ export const HomeToolbar: FC<HomeToolbarProps> = (props) => {
   );
 
   return (
-    <Box bg="white" p={6}>
+    <Box bg="white" p={4}>
       <Container>
-        <Box>
+        <HStack spacing={4}>
           <Input
             defaultValue={searchQuery}
             onChange={handleSearchQueryChange}
             placeholder="Search for a game"
           />
-        </Box>
+          <UserMenu />
+        </HStack>
       </Container>
     </Box>
   );
