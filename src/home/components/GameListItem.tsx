@@ -17,9 +17,12 @@ import { FC, forwardRef, useCallback, useMemo, useState } from 'react';
 import { noCoverUrl } from '../../igdb';
 import { Game } from '../../models';
 
+export type GameListItemOnAdd = (game: Game) => Promise<void>;
+
 export interface GameListItemProps {
   game: Game;
   isInCollection?: boolean;
+  onAdd: GameListItemOnAdd;
 }
 
 const PlatformBadge = forwardRef<HTMLSpanElement, BadgeProps>((props, ref) => (
@@ -27,7 +30,7 @@ const PlatformBadge = forwardRef<HTMLSpanElement, BadgeProps>((props, ref) => (
 ));
 
 export const GameListItem: FC<GameListItemProps> = (props) => {
-  const { game, isInCollection } = props;
+  const { game, onAdd } = props;
   const { platforms = [] } = game;
   const [isLoading, setIsLoading] = useState(false);
   const coverUrl = useMemo(
@@ -38,12 +41,15 @@ export const GameListItem: FC<GameListItemProps> = (props) => {
     [game],
   );
 
-  const handleAddClick = useCallback(() => {
+  const handleAddClick = useCallback(async () => {
     setIsLoading(true);
-    setTimeout(() => {
+
+    try {
+      await onAdd(game);
+    } finally {
       setIsLoading(false);
-    }, 1000);
-  }, []);
+    }
+  }, [game, onAdd]);
 
   return (
     <Box
@@ -92,7 +98,7 @@ export const GameListItem: FC<GameListItemProps> = (props) => {
         </VStack>
         <IconButton
           aria-label="Add"
-          icon={isInCollection ? <CheckIcon /> : <AddIcon />}
+          icon={game.isInCollection ? <CheckIcon /> : <AddIcon />}
           isLoading={isLoading}
           onClick={handleAddClick}
         />

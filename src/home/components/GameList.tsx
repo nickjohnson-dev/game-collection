@@ -2,24 +2,22 @@ import { VStack } from '@chakra-ui/react';
 import { FC } from 'react';
 
 import { Game } from '../../models';
-import { GameListItem } from './GameListItem';
+import { GameListItem, GameListItemOnAdd } from './GameListItem';
 
 type GameListGetIsInCollection = (game: Game) => boolean;
 
+export type GameListOnGameAdd = GameListItemOnAdd;
+
 export interface GameListProps {
   games: Game[];
-  getIsInCollection: GameListGetIsInCollection;
+  onGameAdd: GameListOnGameAdd;
 }
 
-export const GameList: FC<GameListProps> = ({ games, getIsInCollection }) => {
+export const GameList: FC<GameListProps> = ({ games, onGameAdd }) => {
   return (
     <VStack align="flex-start" as="ul" spacing={4}>
       {games.map((game) => (
-        <GameListItem
-          game={game}
-          isInCollection={getIsInCollection(game)}
-          key={game.id}
-        />
+        <GameListItem game={game} key={game.id} onAdd={onGameAdd} />
       ))}
     </VStack>
   );

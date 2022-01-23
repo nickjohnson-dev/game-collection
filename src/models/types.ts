@@ -6,6 +6,7 @@ export interface Cover {
 export interface Game {
   cover?: Cover;
   id: number;
+  isInCollection: boolean;
   name: string;
   platforms?: Platform[];
 }

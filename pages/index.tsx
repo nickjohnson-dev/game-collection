@@ -1,12 +1,24 @@
+import { getSession } from '@auth0/nextjs-auth0';
 import { Box, Container } from '@chakra-ui/react';
+import { User } from '@prisma/client';
+import axios from 'axios';
+import { IncomingMessage, ServerResponse } from 'http';
 import { isString } from 'lodash';
 import type { NextPage, NextPageContext } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { useCallback } from 'react';
+import { useMutation, useQuery } from 'react-query';
+import { prisma } from '../lib';
 
-import { Game, GameList, getGames, HomeToolbar } from '../src';
+import {
+  Game,
+  GameList,
+  GameListOnGameAdd,
+  getGames,
+  HomeToolbar,
+} from '../src';
 
 export interface HomeProps {
   games: Game[];
@@ -15,11 +27,30 @@ export interface HomeProps {
 
 const Home: NextPage<HomeProps> = (props) => {
   const { games, searchQuery } = props;
+  const addGameToCollection = useMutation<any, any, { gameId: Game['id'] }>(
+    (variables) =>
+      axios.post('/api/collections/add-game', {
+        gameId: variables.gameId,
+      }),
+  );
   const router = useRouter();
 
   const getIsInCollection = useCallback((game: Game) => {
     return false;
   }, []);
+
+  const handleGameAdd = useCallback<GameListOnGameAdd>(
+    async (game) => {
+      try {
+        await addGameToCollection.mutateAsync({
+          gameId: game.id,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [addGameToCollection],
+  );
 
   const handleSearchQueryChange = useCallback(
     (changedSearchQuery) =>
@@ -44,24 +75,53 @@ const Home: NextPage<HomeProps> = (props) => {
       />
       <Box minH="100%" p={4}>
         <Container>
-          <GameList games={games} getIsInCollection={getIsInCollection} />
+          <GameList games={games} onGameAdd={handleGameAdd} />
         </Container>
       </Box>
     </Box>
   );
 };
 
-export async function getServerSideProps({ query }: NextPageContext) {
+export async function getServerSideProps({ query, req, res }: NextPageContext) {
   const searchQuery = isString(query.search) ? query.search : '';
 
   try {
-    const games = await getGames({
-      searchQuery,
+    const games = await getGames({ searchQuery });
+    const session = getSession(req as IncomingMessage, res as ServerResponse);
+
+    if (!session) {
+      return {
+        props: {
+          games: games.map((game) => ({
+            ...game,
+            isInCollection: false,
+          })),
+          searchQuery,
+        },
+      };
+    }
+
+    const user = await findOrCreateUser(session.user.sub);
+
+    const collection = await prisma.collection.findFirst({
+      include: {
+        games: {
+          select: {
+            igdbId: true,
+          },
+        },
+      },
+      where: { userId: user.id },
     });
 
     return {
       props: {
-        games,
+        games: games.map((game) => ({
+          ...game,
+          isInCollection: collection?.games.some(
+            ({ igdbId }) => igdbId === game.id,
+          ),
+        })),
         searchQuery,
       },
     };
@@ -78,3 +138,20 @@ export async function getServerSideProps({ query }: NextPageContext) {
 }
 
 export default Home;
+
+async function findOrCreateUser(auth0Id: string): Promise<User> {
+  const user = await prisma.user.findUnique({
+    where: { auth0Id },
+  });
+
+  return user
+    ? user
+    : await prisma.user.create({
+        data: {
+          auth0Id,
+          collections: {
+            create: {},
+          },
+        },
+      });
+}

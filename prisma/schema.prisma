@@ -9,7 +9,25 @@ generator client {
   previewFeatures = ["referentialIntegrity"]
 }
 
+model CollectedGame {
+  Collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId Int?
+  createdAt    DateTime    @default(now())
+  id           Int         @id @default(autoincrement())
+  igdbId       Int
+
+  @@unique([collectionId, igdbId])
+}
+
+model Collection {
+  games  CollectedGame[]
+  id     Int             @id @default(autoincrement())
+  userId Int
+  User   User            @relation(fields: [userId], references: [id])
+}
+
 model User {
-  id   String @id @default(cuid())
-  name String @db.VarChar(255)
+  auth0Id     String       @unique
+  collections Collection[]
+  id          Int          @id @default(autoincrement())
 }
