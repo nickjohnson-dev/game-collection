@@ -7,7 +7,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <Auth0Provider
       clientId={process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID || ''}
       domain={process.env.NEXT_PUBLIC_AUTH0_DOMAIN || ''}
-      redirectUri={process.env.NEXT_PUBLIC_VERCEL_URL || ''}
+      redirectUri={process.env.NEXT_PUBLIC_BASE_URL || ''}
     >
       <ChakraProvider>
         <Component {...pageProps} />
