@@ -1,6 +1,7 @@
-import { getSession, Session, withApiAuthRequired } from '@auth0/nextjs-auth0';
+import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0';
 import { Collection } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { prisma } from '../../../lib';
 
 interface Body {
@@ -10,7 +11,7 @@ interface Body {
 type Data = { collection: Collection } | string;
 
 export default withApiAuthRequired(async function handler(
-  req: NextApiRequest,
+  req: NextApiRequest & { body: Body },
   res: NextApiResponse<Data>,
 ) {
   const gameId = parseInt(req.body.gameId, 10);
@@ -30,10 +31,10 @@ export default withApiAuthRequired(async function handler(
 
   if (collection === null) {
     res.status(404);
-    res.end;
+    res.end();
   }
 
-  console.log({ gameId, g: collection!.games[0] });
+  console.log({ gameId, g: collection?.games[0] });
 
   if (collection?.games.some((game) => game.igdbId === gameId)) {
     res.status(409).send('Game already in collection');
