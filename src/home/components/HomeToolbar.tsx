@@ -1,6 +1,7 @@
 import { Box, Container, HStack, Input } from '@chakra-ui/react';
 import { debounce } from 'lodash';
 import { FC, useMemo } from 'react';
+
 import { UserMenu } from './UserMenu';
 
 type HomeToolbarOnSearchQueryChange = (searchQuery: string) => void;
